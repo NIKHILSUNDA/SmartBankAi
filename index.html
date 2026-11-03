@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SMARTBANK AI — Fraud Detection Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#070B14;--bg2:#0B1220;--pn:#101A2B;--cy:#27E0FF;--bl:#4776FF;--rd:#FF3B5C;--am:#FFB547;--gn:#27E0A3;--tx:#F3F7FF;--mt:#8997AD;--bd:#ffffff17}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px Inter,system-ui,sans-serif;background-image:linear-gradient(#ffffff05 1px,transparent 1px),linear-gradient(90deg,#ffffff05 1px,transparent 1px);background-size:40px 40px}
+button,input,select,textarea{font:inherit;color:var(--tx);background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
+button{cursor:pointer;transition:.2s}button:hover{border-color:var(--cy)}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--cy)}
+button.pri{background:var(--bl);border-color:var(--bl)}button.dng{background:#FF3B5C33;border-color:var(--rd)}
+.app{display:grid;grid-template-columns:225px 1fr;min-height:100vh}
+aside{background:var(--bg2);border-right:1px solid var(--bd);padding:18px 12px;position:sticky;top:0;height:100vh}
+.logo{font-weight:800;letter-spacing:.12em;font-size:15px;margin:0 8px 22px}.logo span{color:var(--cy)}
+.nv{display:flex;gap:10px;width:100%;text-align:left;border:0;background:none;color:var(--mt);padding:10px;border-radius:8px;margin-bottom:2px}
+.nv.on{background:#27E0FF14;color:var(--cy);box-shadow:inset 2px 0 var(--cy)}.nv:hover{color:var(--tx)}
+.top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--bd);background:#070B14cc;backdrop-filter:blur(10px);position:sticky;top:0;z-index:20}
+.top input{flex:1;min-width:160px;max-width:340px}.mut{color:var(--mt);font-size:12px}
+.pill{padding:5px 11px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.06em;border:1px solid}
+.pill.live{color:var(--gn);border-color:var(--gn)}.pill.demo{color:var(--am);border-color:var(--am)}.pill.off{color:var(--rd);border-color:var(--rd)}
+#bc{background:var(--rd);border-radius:9px;padding:0 6px;font-size:11px;margin-left:5px;font-style:normal}
+main{padding:20px;max-width:1700px}.view{display:none}.view.on{display:block;animation:fi .35s}@keyframes fi{from{opacity:0;transform:translateY(6px)}}
+h2{font-size:12px;letter-spacing:.14em;color:var(--mt);margin:0 0 12px;font-weight:700;text-transform:uppercase}
+.card{background:linear-gradient(180deg,#ffffff08,#ffffff03),var(--pn);border:1px solid var(--bd);border-radius:14px;padding:16px;box-shadow:0 8px 30px #0006;min-width:0}
+.ch{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.14em;color:var(--mt);font-weight:700;margin-bottom:10px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
+.kpi .l{font-size:11px;letter-spacing:.1em;color:var(--mt);text-transform:uppercase;display:flex;justify-content:space-between}
+.kpi .v{font-size:28px;font-weight:800;margin:6px 0 2px}.kpi .d{font-size:12px;color:var(--mt)}.up{color:var(--rd)}.dn{color:var(--gn)}
+.row2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+#globe{height:480px;position:relative;cursor:grab;border-radius:10px;overflow:hidden;background:radial-gradient(circle,#0d1a33,#05080f)}.tall #globe{height:68vh}
+#tip{position:fixed;pointer-events:none;background:#0B1220ee;border:1px solid var(--cy);border-radius:8px;padding:8px 10px;font-size:12px;display:none;z-index:50;white-space:pre-line}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mt);margin-top:10px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}.cv{height:240px;position:relative}
+.fr{display:grid;grid-template-columns:55px 90px 80px 70px 1fr 40px 74px;gap:8px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--bd);cursor:pointer;font-size:12px}
+.fr:hover{background:#ffffff08}.fr.new{animation:ins .8s}@keyframes ins{from{background:#27E0FF30;transform:translateY(-8px);opacity:0}}
+.b{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-align:center}.LOW{background:#27E0A322;color:var(--gn)}.MEDIUM{background:#FFB54722;color:var(--am)}.HIGH{background:#FF3B5C2a;color:#ff7a90}.CRITICAL{background:var(--rd);color:#fff}.NA{background:#ffffff14;color:var(--mt)}
+table{width:100%;border-collapse:collapse;font-size:12px}th{color:var(--mt);text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:8px 6px;border-bottom:1px solid var(--bd)}td{padding:9px 6px;border-bottom:1px solid var(--bd)}tbody tr{cursor:pointer}tbody tr:hover{background:#ffffff08}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.filters input{width:120px}.pg{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:10px}
+.sk{height:20px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff18,#ffffff08);background-size:200%;animation:sh 1.2s infinite}@keyframes sh{to{background-position:-200%}}
+.empty{padding:30px;text-align:center;color:var(--mt)}
+#toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:100}.toast{background:var(--pn);border:1px solid var(--cy);border-left-width:4px;padding:10px 14px;border-radius:8px;cursor:pointer;animation:fi .3s;max-width:320px}.toast.err{border-color:var(--rd)}.toast.ok{border-color:var(--gn)}
+dialog{background:var(--pn);color:var(--tx);border:1px solid var(--bd);border-radius:14px;padding:20px;max-width:760px;width:94vw;max-height:90vh}dialog::backdrop{background:#000a;backdrop-filter:blur(3px)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin:10px 0}.g2 span{color:var(--mt)}.bar{height:8px;background:#ffffff14;border-radius:5px;overflow:hidden}.bar i{display:block;height:100%}
+.note{color:var(--mt);font-size:12px;margin:8px 0}pre{background:var(--bg2);padding:12px;border-radius:8px;overflow:auto;font-size:12px}
+@media(max-width:1000px){.app{grid-template-columns:1fr}aside{position:static;height:auto;display:flex;overflow-x:auto;padding:8px}.logo{display:none}.nv{white-space:nowrap;width:auto}.row2{grid-template-columns:1fr}#globe{height:340px}.fr{grid-template-columns:50px 1fr 70px 70px}.fr>:nth-child(2),.fr>:nth-child(4),.fr>:nth-child(6){display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div class="app">
+<aside><div class="logo">SMARTBANK <span>AI</span></div><nav id="menu" aria-label="Main"></nav></aside>
+<div>
+<header class="top">
+<input id="gs" placeholder="Search transaction ID or account… (Enter)" aria-label="Global search">
+<span id="stat" class="pill off" title="LIVE = backend & DB reachable. DEMO SIMULATION = synthetic events being generated. OFFLINE = backend unreachable.">● OFFLINE</span>
+<span class="pill" style="color:var(--mt);border-color:var(--bd)" title="All data in this build is synthetic">SYNTHETIC DATA</span>
+<span id="sync" class="mut">Not synced</span><span style="flex:1"></span>
+<select id="range" aria-label="Date range"><option value="1">Last 24h</option><option value="7" selected>Last 7 days</option><option value="30">Last 30 days</option></select>
+<button id="bell" title="Flagged alerts since you last looked">🔔<i id="bc">0</i></button><button id="refresh" title="Refresh all data">⟳ Refresh</button>
+<button id="prof" title="Profile & settings">👤 <span id="who"></span></button>
+</header>
+<main>
+<section id="v-overview" class="view"><div class="kpis" id="kpis"></div>
+<div class="row2"><div class="card" id="gcard"><div class="ch"><span>LIVE THREAT MAP</span><span><button id="gp">❚❚ Pause</button> <button id="gr">⌖ Reset</button></span></div>
+<div id="globe" aria-label="Interactive 3D globe of transactions"></div>
+<div class="legend"><span><i class="dot" style="background:var(--cy)"></i>Ordinary / low</span><span><i class="dot" style="background:var(--am)"></i>Suspicious (medium)</span><span><i class="dot" style="background:var(--rd)"></i>High-risk flagged</span><span id="gnote">Locations = approximate country centroids. Arcs only when both endpoints exist.</span></div></div>
+<div class="card"><div class="ch"><span>TRANSACTION FEED</span><button id="fp">❚❚ Pause feed</button></div><div id="feed"><div class="sk"></div></div></div></div>
+<div class="charts" id="charts">
+<div class="card"><div class="ch"><span>VOLUME</span><select id="vm"><option value="n">Transactions (count)</option><option value="v">Value (USD)</option></select></div><div class="cv"><canvas id="c_vol"></canvas></div></div>
+<div class="card"><div class="ch">TRANSACTION TYPES</div><div class="cv"><canvas id="c_type"></canvas></div></div>
+<div class="card"><div class="ch">FLAGGED RATE BY TYPE (%)</div><div class="cv"><canvas id="c_rate"></canvas></div></div>
+<div class="card"><div class="ch">RISK SCORE DISTRIBUTION</div><div class="cv"><canvas id="c_risk"></canvas></div></div>
+<div class="card"><div class="ch">AMOUNT DISTRIBUTION (USD, log bins)</div><div class="cv"><canvas id="c_amt"></canvas></div></div>
+<div class="card"><div class="ch">MERCHANT CATEGORIES</div><div class="cv"><canvas id="c_mer"></canvas></div></div></div></section>
+
+<section id="v-map" class="view"><div class="row2"><div id="gslot"></div><div class="card"><h2>Flagged alerts</h2><div id="alerts"></div></div></div></section>
+
+<section id="v-explorer" class="view"><div class="card"><h2>Transaction Explorer</h2><div class="filters">
+<input id="f_q" placeholder="ID / account"><select id="f_type"><option value="">All types</option><option>PAYMENT</option><option>TRANSFER</option><option>CASH_OUT</option><option>CASH_IN</option><option>DEBIT</option></select>
+<select id="f_risk"><option value="">All risk</option><option>LOW</option><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select>
+<select id="f_status"><option value="">All status</option><option>NEW</option><option>UNDER_REVIEW</option><option>ESCALATED</option><option>RESOLVED</option><option>FALSE_POSITIVE</option></select>
+<input id="f_min_amount" type="number" placeholder="Min $"><input id="f_max_amount" type="number" placeholder="Max $">
+<select id="f_pp"><option>25</option><option>50</option><option>100</option></select><button id="f_go" class="pri">Apply</button><button id="f_csv">⇩ CSV</button></div>
+<div style="overflow-x:auto"><table><thead><tr id="exh"></tr></thead><tbody id="exb"></tbody></table></div><div class="pg"><button id="pv">‹</button><span id="pgi"></span><button id="nx">›</button></div></div></section>
+
+<section id="v-fraud" class="view"><div class="card"><div class="ch"><span>FLAGGED TRANSACTIONS & CASES (sorted by risk)</span><select id="cs"><option value="">All statuses</option><option>NEW</option><option>UNDER_REVIEW</option><option>ESCALATED</option><option>RESOLVED</option><option>FALSE_POSITIVE</option></select></div>
+<p class="note">A flag means "unusual — needs review". It is not confirmed fraud.</p><div style="overflow-x:auto"><table><thead><tr><th>Case</th><th>Tx</th><th>Account</th><th>Amount</th><th>Score</th><th>Risk</th><th>Status</th></tr></thead><tbody id="cb"></tbody></table></div><div class="pg"><button id="cpv">‹</button><span id="cpi"></span><button id="cnx">›</button></div></div>
+<div class="card" style="margin-top:14px"><h2>Audit log</h2><div style="overflow-x:auto"><table><thead><tr><th>When</th><th>Case</th><th>Action</th><th>From</th><th>To</th><th>By</th></tr></thead><tbody id="ab"></tbody></table></div></div></section>
+
+<section id="v-customers" class="view"><div class="card"><h2>Customer Analytics (anonymized IDs)</h2><div class="filters"><input id="cid" placeholder="CUST-0001"><button id="cgo" class="pri">Load</button></div><div id="cres"></div></div>
+<div class="card" style="margin-top:14px"><h2>Accounts with unusual activity (30d)</h2><table><thead><tr><th>Customer</th><th>Tx</th><th>Avg</th><th>Total</th><th>Flagged</th><th>Max risk</th></tr></thead><tbody id="ub"></tbody></table></div></section>
+
+<section id="v-geo" class="view"><div class="charts"><div class="card"><div class="ch">TRANSACTIONS BY ORIGIN COUNTRY</div><div class="cv"><canvas id="c_geo"></canvas></div></div><div class="card"><div class="ch">TOP CROSS-BORDER ROUTES</div><table><tbody id="rb"></tbody></table></div></div><p class="note">Coordinates are approximate country centroids, not customer locations.</p></section>
+
+<section id="v-model" class="view"><div class="card"><div class="ch"><span>MODEL PERFORMANCE</span><button id="train" class="dng">Retrain model</button></div><p class="note">Unsupervised Isolation Forest. There are no ground-truth labels, so precision/recall are not reported; anomaly scores are not proof of fraud.</p><div class="charts"><div class="cv"><canvas id="c_cat"></canvas></div><pre id="meta"></pre></div></div></section>
+
+<section id="v-reports" class="view"><div class="card"><h2>Reports & Exports</h2><div class="filters"><button id="r1">⇩ Filtered transactions (Explorer filters)</button><button id="r2">⇩ Flagged transactions</button><button id="r3">⇩ Investigation records</button></div><div id="rep"></div></div></section>
+
+<section id="v-settings" class="view"><div class="card" style="max-width:560px"><h2>System Settings</h2>
+<p>Analyst name<br><input id="s_who"></p><p>Analyst API key (required for case updates, training, simulator; kept in this tab's session only)<br><input id="s_key" type="password" style="width:100%"></p>
+<p>Polling interval <select id="s_poll"><option value="3000">3 s</option><option value="4000" selected>4 s</option><option value="5000">5 s</option></select></p>
+<p><label><input type="checkbox" id="sim"> Demo simulator (generates clearly-labeled SYNTHETIC transactions)</label></p><button id="s_save" class="pri">Save</button></div></section>
+</main></div></div>
+<dialog id="dlg"></dialog><dialog id="cf"><p id="cft"></p><div style="text-align:right"><button id="cfn">Cancel</button> <button id="cfy" class="pri">Confirm</button></div></dialog>
+<div id="tip"></div><div id="toasts" aria-live="polite"></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const S={days:7,key:sessionStorage.getItem('sbkey')||'',who:localStorage.getItem('sbwho')||'analyst',sim:false,fp:false,last:0,unread:0,poll:4000,view:'overview',alerts:[],kp:{}};
+const money=(v,c='USD',d=2)=>new Intl.NumberFormat(undefined,{style:'currency',currency:c,maximumFractionDigits:d}).format(v||0);
+const num=v=>new Intl.NumberFormat().format(Math.round(v||0));
+const T=d=>d?new Date(d+'Z').toLocaleString([],{month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}):'—';
+async function api(path,opt={}){const h={'Content-Type':'application/json'};if(S.key)h['X-API-Key']=S.key;
+ const r=await fetch('/api/'+path,{...opt,headers:h});const j=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(j.error||r.statusText),{status:r.status});return j}
+function toast(m,k='',fn){const t=document.createElement('div');t.className='toast '+k;t.textContent=m;if(fn)t.onclick=fn;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),5000)}
+function setStatus(m){const e=$('#stat');e.className='pill '+m;e.textContent={live:'● LIVE',demo:'● DEMO SIMULATION',off:'● OFFLINE'}[m]}
+function ask(msg){return new Promise(res=>{$('#cft').textContent=msg;const d=$('#cf');d.showModal();$('#cfy').onclick=()=>{d.close();res(true)};$('#cfn').onclick=()=>{d.close();res(false)}})}
+const badge=c=>`<span class="b ${c||'NA'}">${c||'UNSCORED'}</span>`;
+const route=t=>t.destination_country&&t.destination_country!==t.origin_country?`${esc(t.origin_country)} → ${esc(t.destination_country)}`:t.origin_country?`${esc(t.origin_country)} (approx.)`:'Unknown';
+/* ---- navigation ---- */
+const NAV=[['overview','Overview','◎'],['map','Live Threat Map','🌐'],['explorer','Transaction Explorer','☰'],['fraud','Fraud Detection','⚑'],['customers','Customer Analytics','♟'],['geo','Geographic Intelligence','✦'],['model','Model Performance','◔'],['reports','Reports & Exports','⇩'],['settings','System Settings','⚙']];
+$('#menu').innerHTML=NAV.map(n=>`<button class="nv" data-v="${n[0]}"><span>${n[2]}</span>${n[1]}</button>`).join('');
+$$('.nv').forEach(b=>b.onclick=()=>show(b.dataset.v));
+function show(v){S.view=v;$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));$$('.nv').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ const host=v==='map'?$('#gslot'):$('#v-overview .row2');if(v==='map'){$('#gslot').appendChild($('#gcard'));$('#gcard').classList.add('tall');loadAlerts()}else{$('.row2').prepend($('#gcard'));$('#gcard').classList.remove('tall')}
+ ({overview:()=>{loadOverview();loadCharts()},explorer:loadEx,fraud:()=>{loadCases();loadAudit()},customers:loadUnusual,geo:loadGeo,model:loadModel,reports:loadRep,settings:()=>{}})[v]?.();setTimeout(()=>G.resize?.(),50)}
+/* ---- KPIs ---- */
+const KP=[['n','Total Transactions','All transactions in the selected period.','◎'],['val','Total Value','Sum of transaction amounts (USD).','$'],['flagged','Flagged','Model risk ≥ 60. Needs review; NOT confirmed fraud.','⚑'],['critical','High-Risk (Critical)','Risk score ≥ 80.','⚠'],['rate','Fraud Detection Rate','Requires ground-truth fraud labels, which this dataset does not have.','✓'],['flagged_amount','Flagged Amount','Value of FLAGGED transactions — not confirmed fraud losses.','$']];
+$('#kpis').innerHTML=KP.map(k=>`<div class="card kpi" id="k_${k[0]}"><div class="l"><span title="${k[2]}">${k[1]} ⓘ</span><span>${k[3]}</span></div><div class="v"><div class="sk"></div></div><div class="d"></div><canvas height="34" width="200" style="width:100%"></canvas></div>`).join('');
+function spark(cv,arr,col){const x=cv.getContext('2d');x.clearRect(0,0,200,34);if(arr.length<2)return;const mx=Math.max(...arr,1),mn=Math.min(...arr);x.strokeStyle=col;x.lineWidth=2;x.beginPath();arr.forEach((v,i)=>{const px=i/(arr.length-1)*198+1,py=32-(v-mn)/(mx-mn||1)*28;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()}
+function count(el,to,f){const from=+el.dataset.v||0;el.dataset.v=to;if(reduce){el.textContent=f(to);return}const t0=performance.now();(function s(n){const p=Math.min((n-t0)/600,1);el.textContent=f(from+(to-from)*p);if(p<1)requestAnimationFrame(s)})(t0)}
+async function loadOverview(){try{const o=await api('overview?days='+S.days);const f={n:num,val:v=>money(v,'USD',0),flagged:num,critical:num,flagged_amount:v=>money(v,'USD',0)};
+ const sr={n:'n',val:'v',flagged:'f',critical:'c',flagged_amount:'fa'};
+ KP.forEach(([k])=>{const c=$('#k_'+k),v=c.querySelector('.v'),d=c.querySelector('.d');if(k==='rate'){v.textContent='N/A';d.textContent='No ground-truth labels';return}
+  const cur=+o.current[k],prev=+o.previous[k];if(!v.dataset.init){v.innerHTML='<span></span>';v.dataset.init=1}count(v.firstChild,cur,f[k]);
+  const p=prev?((cur-prev)/prev*100):null;d.innerHTML=p==null?'No prior-period data':`<span class="${p>0&&k!=='n'&&k!=='val'?'up':'dn'}">${p>=0?'▲':'▼'} ${Math.abs(p).toFixed(1)}%</span> vs previous ${S.days}d`;
+  spark(c.querySelector('canvas'),o.series.map(s=>+s[sr[k]]),k.includes('flag')||k==='critical'?'#FF3B5C':'#27E0FF')})}catch(e){offline(e)}}
+function offline(e){setStatus('off');$('#sync').textContent=e.status?e.message:'Backend unreachable'}
+/* ---- charts ---- */
+const CH={};const AX={ticks:{color:'#8997AD'},grid:{color:'#ffffff10'}};
+function chart(id,cfg){if(!window.Chart)return;CH[id]?.destroy();const dn=cfg.type==='doughnut';cfg.options=Object.assign({responsive:true,maintainAspectRatio:false,animation:reduce?false:{duration:500},plugins:{legend:{labels:{color:'#8997AD'}}},scales:dn?{}:{x:AX,y:{...AX,beginAtZero:true}}},cfg.options||{});CH[id]=new Chart($('#'+id),cfg)}
+const PAL=['#27E0FF','#4776FF','#27E0A3','#FFB547','#FF3B5C','#9b7bff'];let VOL=[];
+function drawVol(){const m=$('#vm').value;chart('c_vol',{type:'bar',data:{labels:VOL.map(r=>r.b),datasets:[{label:m==='n'?'All transactions':'Value (USD)',data:VOL.map(r=>+r[m]),backgroundColor:'#4776FF99'}].concat(m==='n'?[{type:'line',label:'Flagged',data:VOL.map(r=>+r.f),borderColor:'#FF3B5C',pointRadius:2}]:[])}})}
+async function loadCharts(){try{const d=S.days,[v,t,r]=await Promise.all([api(`analytics/volume?days=${d}&bucket=${d<=1?'hour':'day'}`),api('analytics/types?days='+d),api('analytics/risk-distribution?days='+d)]);
+ VOL=v.items;drawVol();chart('c_type',{type:'doughnut',data:{labels:t.types.map(x=>x.k),datasets:[{data:t.types.map(x=>+x.n),backgroundColor:PAL,borderColor:'#101A2B'}]}});
+ chart('c_rate',{type:'bar',data:{labels:t.types.map(x=>x.k),datasets:[{label:'% flagged',data:t.types.map(x=>+(x.flagged/x.n*100).toFixed(2)),backgroundColor:'#FF3B5CAA'}]}});
+ chart('c_risk',{type:'bar',data:{labels:r.risk.map(x=>`${x.bucket}–${+x.bucket+10}`),datasets:[{label:'Transactions',data:r.risk.map(x=>+x.n),backgroundColor:r.risk.map(x=>x.bucket>=80?'#FF3B5C':x.bucket>=60?'#ff7a90':x.bucket>=30?'#FFB547':'#27E0A3')}]},options:{plugins:{legend:{display:false}}}});
+ chart('c_amt',{type:'bar',data:{labels:r.amount.map(x=>`$${(10**x.e).toLocaleString()}–$${(10**(+x.e+1)).toLocaleString()}`),datasets:[{label:'Transactions',data:r.amount.map(x=>+x.n),backgroundColor:'#27E0FF99'}]},options:{plugins:{legend:{display:false}}}});
+ chart('c_mer',{type:'bar',data:{labels:t.merchants.map(x=>x.k),datasets:[{label:'Transactions',data:t.merchants.map(x=>+x.n),backgroundColor:'#27E0A399'}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}})}catch(e){offline(e)}}
+$('#vm').onchange=drawVol;
+/* ---- feed ---- */
+const seen=new Set();
+function frow(t){return `<div class="fr new" data-id="${t.transaction_id}" tabindex="0"><span>#${t.transaction_id}</span><span>${T(t.transaction_timestamp)}</span><b>${money(t.amount,t.currency,0)}</b><span>${esc(t.transaction_type)}</span><span>${route(t)}</span><span>${t.risk_score??'–'}</span>${badge(t.risk_category)}</div>`}
+function feedAdd(t){if(seen.has(t.transaction_id))return;seen.add(t.transaction_id);const f=$('#feed');if(f.querySelector('.sk'))f.innerHTML='';f.insertAdjacentHTML('afterbegin',frow(t));while(f.children.length>14)f.lastChild.remove()}
+$('#feed').onclick=e=>{const r=e.target.closest('[data-id]');if(r)openTx(r.dataset.id)};
+$('#fp').onclick=()=>{S.fp=!S.fp;$('#fp').textContent=S.fp?'▶ Resume feed':'❚❚ Pause feed'};
+function alertNew(t){S.unread++;$('#bc').textContent=S.unread;S.alerts.unshift(t);toast(`Flagged #${t.transaction_id} • score ${t.risk_score} (${t.risk_category})`,'err',()=>openTx(t.transaction_id));if(S.view==='map')renderAlerts()}
+function renderAlerts(){$('#alerts').innerHTML=S.alerts.length?S.alerts.slice(0,25).map(frow).join(''):'<div class="empty">No flagged transactions yet.</div>'}
+async function loadAlerts(){try{const d=await api('alerts?limit=25');S.alerts=d.items;renderAlerts()}catch(e){offline(e)}}
+$('#alerts').onclick=$('#feed').onclick;
+$('#bell').onclick=()=>{S.unread=0;$('#bc').textContent=0;show('map')};
+/* ---- polling ---- */
+let timer;async function poll(){if(S.fp)return;try{
+ if(S.sim){try{await api('demo/generate',{method:'POST'})}catch(e){if(e.status){toast(e.message,'err');S.sim=false;$('#sim').checked=false}else throw e}}
+ const d=await api(`transactions?since_id=${S.last}&days=90&sort=transaction_id&dir=asc&per_page=50`);setStatus(S.sim?'demo':'live');$('#sync').textContent='Synced '+new Date().toLocaleTimeString();
+ if(d.items.length){d.items.forEach(t=>{S.last=Math.max(S.last,t.transaction_id);feedAdd(t);addGlobe(t);if(t.model_prediction)alertNew(t)});if(S.view==='overview')loadOverview();if(S.view==='explorer'&&E.page===1)loadEx()}}catch(e){offline(e)}}
+async function init(){try{const d=await api(`transactions?per_page=60&sort=transaction_id&dir=desc&days=${S.days}`);const a=await api('alerts?limit=30');S.alerts=a.items;
+ const all=[...d.items,...a.items].sort((x,y)=>x.transaction_id-y.transaction_id);all.forEach(t=>{feedAdd(t);addGlobe(t)});S.last=Math.max(0,...d.items.map(t=>t.transaction_id));setStatus('live');$('#sync').textContent='Synced '+new Date().toLocaleTimeString();
+ if(!d.items.length)$('#feed').innerHTML='<div class="empty">No transactions yet. Run <code>python seed_data.py</code>.</div>'}catch(e){offline(e);$('#feed').innerHTML='<div class="empty">Backend/database unreachable.</div>'}
+ loadOverview();loadCharts();clearInterval(timer);timer=setInterval(poll,S.poll)}
+/* ---- explorer ---- */
+const E={page:1,sort:'transaction_id',dir:'desc',pages:1};const COLS=[['transaction_id','ID'],['transaction_timestamp','Time'],['account_id','Account'],['amount','Amount'],['transaction_type','Type'],['','Route'],['risk_score','Score'],['','Risk'],['','Status']];
+$('#exh').innerHTML=COLS.map(c=>`<th data-s="${c[0]}">${c[1]}</th>`).join('');$('#exh').onclick=e=>{const s=e.target.dataset.s;if(!s)return;E.dir=E.sort===s&&E.dir==='desc'?'asc':'desc';E.sort=s;E.page=1;loadEx()};
+function exQS(x={}){const p=new URLSearchParams({days:S.days});['q','type','risk','status','min_amount','max_amount'].forEach(k=>{const v=$('#f_'+k).value.trim();if(v)p.set(k,v)});Object.entries(x).forEach(([k,v])=>p.set(k,v));return p}
+async function loadEx(){$('#exb').innerHTML='<tr><td colspan=9><div class="sk"></div></td></tr>';try{const d=await api('transactions?'+exQS({page:E.page,per_page:$('#f_pp').value,sort:E.sort,dir:E.dir}));E.pages=Math.max(1,Math.ceil(d.total/d.per_page));
+ $('#exb').innerHTML=d.items.length?d.items.map(t=>`<tr data-id="${t.transaction_id}"><td>#${t.transaction_id}</td><td>${T(t.transaction_timestamp)}</td><td>${esc(t.account_id)}</td><td>${money(t.amount,t.currency)}</td><td>${esc(t.transaction_type)}</td><td>${route(t)}</td><td>${t.risk_score??'–'}</td><td>${badge(t.risk_category)}</td><td>${esc(t.case_status||'—')}</td></tr>`).join(''):'<tr><td colspan=9 class="empty">No transactions match these filters.</td></tr>';
+ $('#pgi').textContent=`Page ${d.page} / ${E.pages} • ${num(d.total)} results`}catch(e){offline(e);$('#exb').innerHTML=`<tr><td colspan=9 class="empty">${esc(e.message)}</td></tr>`}}
+$('#exb').onclick=e=>{const r=e.target.closest('[data-id]');if(r)openTx(r.dataset.id)};$('#f_go').onclick=()=>{E.page=1;loadEx()};$('#pv').onclick=()=>{if(E.page>1){E.page--;loadEx()}};$('#nx').onclick=()=>{if(E.page<E.pages){E.page++;loadEx()}};
+$('#f_csv').onclick=()=>location.href='/api/export/transactions.csv?'+exQS();
+/* ---- cases / audit ---- */
+const C={page:1,pages:1};
+async function loadCases(){try{const d=await api(`cases?page=${C.page}&per_page=15&status=${$('#cs').value}`);C.pages=Math.max(1,Math.ceil(d.total/15));
+ $('#cb').innerHTML=d.items.length?d.items.map(t=>`<tr data-id="${t.transaction_id}"><td>${t.case_id}</td><td>#${t.transaction_id}</td><td>${esc(t.account_id)}</td><td>${money(t.amount)}</td><td>${t.risk_score}</td><td>${badge(t.risk_category)}</td><td>${esc(t.case_status)}</td></tr>`).join(''):'<tr><td colspan=7 class="empty">No cases.</td></tr>';$('#cpi').textContent=`Page ${C.page} / ${C.pages}`}catch(e){offline(e)}}
+$('#cb').onclick=e=>{const r=e.target.closest('[data-id]');if(r)openTx(r.dataset.id)};$('#cs').onchange=()=>{C.page=1;loadCases()};$('#cpv').onclick=()=>{if(C.page>1){C.page--;loadCases()}};$('#cnx').onclick=()=>{if(C.page<C.pages){C.page++;loadCases()}};
+async function loadAudit(){try{const d=await api('audit-logs?limit=30');$('#ab').innerHTML=d.items.length?d.items.map(a=>`<tr><td>${T(a.changed_at)}</td><td>${a.case_id}</td><td>${esc(a.action)}</td><td>${esc((a.previous_value||'').slice(0,40))}</td><td>${esc((a.new_value||'').slice(0,40))}</td><td>${esc(a.changed_by)}</td></tr>`).join(''):'<tr><td colspan=6 class="empty">No investigation changes yet.</td></tr>'}catch(e){offline(e)}}
+/* ---- transaction modal ---- */
+async function openTx(id){try{const d=await api('transactions/'+id),t=d.transaction,dl=$('#dlg'),col=t.risk_score>=80?'#FF3B5C':t.risk_score>=60?'#ff7a90':t.risk_score>=30?'#FFB547':'#27E0A3';
+ dl.innerHTML=`<div class="ch"><span>TRANSACTION #${t.transaction_id} ${t.is_synthetic?'• SYNTHETIC':''}</span><button id="x">✕</button></div>
+ <div>${badge(t.risk_category)} <b style="font-size:22px">${t.risk_score??'–'}</b>/100<div class="bar"><i style="width:${t.risk_score||0}%;background:${col}"></i></div></div>
+ <div class="g2"><div><span>Amount</span><br>${money(t.amount,t.currency)}</div><div><span>Time</span><br>${T(t.transaction_timestamp)}</div><div><span>Account</span><br>${esc(t.account_id)}</div><div><span>Type</span><br>${esc(t.transaction_type)} ${esc(t.merchant_category||'')}</div><div><span>Route (approx. country level)</span><br>${route(t)}</div><div><span>Model</span><br>${esc(t.model_version||'—')} • ${t.model_prediction?'flagged for review':'not flagged'}</div></div>
+ <h2>Why flagged (indicators, not causal proof)</h2><ul>${(t.explanation||[]).map(r=>`<li>${esc(r)}</li>`).join('')||'<li>No model output</li>'}</ul>
+ ${t.case_id?`<h2>Case #${t.case_id}</h2><select id="m_st">${['NEW','UNDER_REVIEW','ESCALATED','RESOLVED','FALSE_POSITIVE'].map(s=>`<option ${s===t.case_status?'selected':''}>${s}</option>`).join('')}</select><textarea id="m_nt" rows="3" style="width:100%;margin-top:8px" maxlength="4000" placeholder="Investigation notes">${esc(t.investigation_notes||'')}</textarea><button id="m_sv" class="pri">Save case</button>
+ <h2 style="margin-top:14px">Case history</h2>${d.audit.map(a=>`<div class="note">${T(a.changed_at)} • ${esc(a.action)}: ${esc((a.previous_value||'∅').slice(0,30))} → ${esc((a.new_value||'').slice(0,30))} (${esc(a.changed_by)})</div>`).join('')||'<div class="note">No changes yet.</div>'}`:''}
+ <h2 style="margin-top:14px">Recent account activity</h2><div style="overflow-x:auto"><table>${d.history.map(h=>`<tr><td>#${h.transaction_id}</td><td>${T(h.transaction_timestamp)}</td><td>${money(h.amount)}</td><td>${esc(h.transaction_type)}</td><td>${badge(h.risk_category)}</td></tr>`).join('')}</table></div>`;
+ dl.showModal();$('#x').onclick=()=>dl.close();
+ if(t.case_id)$('#m_sv').onclick=async()=>{if(!await ask(`Set case #${t.case_id} to ${$('#m_st').value} and save notes? This is logged in the audit trail.`))return;
+  try{await api('cases/'+t.case_id,{method:'PATCH',body:JSON.stringify({status:$('#m_st').value,notes:$('#m_nt').value,analyst:S.who})});toast('Case saved','ok');dl.close();if(S.view==='fraud'){loadCases();loadAudit()}if(S.view==='explorer')loadEx()}catch(e){toast(e.message+(e.status===401?' — set the API key in Settings':''),'err')}}}catch(e){toast(e.message,'err')}}
+/* ---- customers / geo / model / reports ---- */
+async function loadUnusual(){try{const d=await api('customers/unusual');$('#ub').innerHTML=d.items.map(c=>`<tr data-c="${esc(c.customer_id)}"><td>${esc(c.customer_id)}</td><td>${c.n}</td><td>${money(c.avg_amt)}</td><td>${money(c.total,'USD',0)}</td><td>${c.flagged}</td><td>${c.max_risk}</td></tr>`).join('')||'<tr><td colspan=6 class="empty">None.</td></tr>'}catch(e){offline(e)}}
+$('#ub').onclick=e=>{const r=e.target.closest('[data-c]');if(r){$('#cid').value=r.dataset.c;loadCust()}};$('#cgo').onclick=loadCust;
+async function loadCust(){try{const d=await api('customers/'+encodeURIComponent($('#cid').value.trim()+'/summary').replace('%2F','/'));const s=d.stats,c=d.spending_change,ch=c.prior_avg?((c.recent_3d_avg/c.prior_avg-1)*100).toFixed(0)+'%':'n/a';
+ $('#cres').innerHTML=`<div class="g2"><div><span>Segment / home</span><br>${esc(d.customer.customer_segment)} / ${esc(d.customer.home_country)}</div><div><span>Transactions (frequency)</span><br>${s.n}</div><div><span>Average amount</span><br>${money(s.avg_amt)}</div><div><span>Total</span><br>${money(s.total)}</div><div><span>Flagged</span><br>${s.flagged}</div><div><span>Spending change (last 3d avg vs prior)</span><br>${ch}</div></div><div class="charts"><div class="cv"><canvas id="c_cd"></canvas></div><div class="cv"><canvas id="c_ct"></canvas></div></div>`;
+ chart('c_cd',{type:'line',data:{labels:d.daily.map(x=>String(x.b).slice(0,10)),datasets:[{label:'Daily value (USD)',data:d.daily.map(x=>+x.v),borderColor:'#27E0FF'}]}});chart('c_ct',{type:'doughnut',data:{labels:d.types.map(x=>x.k),datasets:[{data:d.types.map(x=>+x.n),backgroundColor:PAL,borderColor:'#101A2B'}]}})}catch(e){toast(e.message,'err')}}
+async function loadGeo(){try{const d=await api('analytics/geography?days='+S.days);chart('c_geo',{type:'bar',data:{labels:d.countries.map(c=>c.name),datasets:[{label:'Transactions',data:d.countries.map(c=>+c.n),backgroundColor:'#4776FF99'},{label:'Flagged',data:d.countries.map(c=>+c.flagged),backgroundColor:'#FF3B5CAA'}]}});
+ $('#rb').innerHTML=d.routes.map(r=>`<tr><td>${esc(r.o)} → ${esc(r.d)}</td><td>${r.n}</td></tr>`).join('')||'<tr><td class="empty">No cross-border routes.</td></tr>'}catch(e){offline(e)}}
+async function loadModel(){try{const d=await api('model/metrics');$('#meta').textContent=JSON.stringify(d.meta||'Model not trained',null,2);chart('c_cat',{type:'doughnut',data:{labels:d.live_distribution.map(x=>x.k),datasets:[{data:d.live_distribution.map(x=>+x.n),backgroundColor:d.live_distribution.map(x=>({LOW:'#27E0A3',MEDIUM:'#FFB547',HIGH:'#ff7a90',CRITICAL:'#FF3B5C'}[x.k]))}]}})}catch(e){offline(e)}}
+$('#train').onclick=async()=>{if(!await ask('Retrain the model on all transactions? Predictions will be recomputed.'))return;toast('Training…');try{await api('model/train',{method:'POST'});toast('Model retrained','ok');loadModel()}catch(e){toast(e.message,'err')}};
+async function loadRep(){try{const o=await api('overview?days='+S.days),c=o.current;$('#rep').innerHTML=`<table><tr><td>Period</td><td>Last ${S.days} day(s)</td></tr><tr><td>Transactions</td><td>${num(c.n)}</td></tr><tr><td>Total value</td><td>${money(c.val)}</td></tr><tr><td>Flagged</td><td>${num(c.flagged)} (${money(c.flagged_amount)} — not confirmed fraud)</td></tr><tr><td>Critical</td><td>${num(c.critical)}</td></tr><tr><td>Detection rate</td><td>N/A — no ground-truth labels</td></tr></table>`}catch(e){offline(e)}}
+$('#r1').onclick=()=>location.href='/api/export/transactions.csv?'+exQS();$('#r2').onclick=()=>location.href=`/api/export/transactions.csv?days=${S.days}&flagged=1`;$('#r3').onclick=()=>location.href='/api/export/cases.csv';
+/* ---- settings / topbar ---- */
+$('#who').textContent=S.who;$('#s_who').value=S.who;$('#s_key').value=S.key;$('#prof').onclick=()=>show('settings');
+$('#s_save').onclick=()=>{S.who=$('#s_who').value.trim()||'analyst';S.key=$('#s_key').value;S.sim=$('#sim').checked;S.poll=+$('#s_poll').value;localStorage.setItem('sbwho',S.who);sessionStorage.setItem('sbkey',S.key);$('#who').textContent=S.who;clearInterval(timer);timer=setInterval(poll,S.poll);toast('Settings saved','ok')};
+$('#range').onchange=e=>{S.days=+e.target.value;refreshAll()};$('#refresh').onclick=refreshAll;
+function refreshAll(){show(S.view)}$('#gs').onkeydown=e=>{if(e.key==='Enter'){$('#f_q').value=e.target.value;E.page=1;show('explorer')}};
+/* ---- 3D globe ---- */
+const G={items:[],pick:[],paused:false};
+const ll=(lat,lon,r)=>{const p=(90-lat)*Math.PI/180,t=(lon+180)*Math.PI/180;return new THREE.Vector3(-r*Math.sin(p)*Math.cos(t),r*Math.cos(p),r*Math.sin(p)*Math.sin(t))};
+function initGlobe(){const el=$('#globe');if(!window.THREE){el.innerHTML='<div class="empty">3D library could not load (internet needed for CDN). Tables and charts still work.</div>';return}
+ const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(45,1,.1,100);cam.position.z=3.2;const rd=new THREE.WebGLRenderer({antialias:true,alpha:true});rd.setPixelRatio(Math.min(devicePixelRatio,2));el.appendChild(rd.domElement);
+ const grp=new THREE.Group();sc.add(grp);const mat=new THREE.MeshBasicMaterial({color:0x16315a});const earth=new THREE.Mesh(new THREE.SphereGeometry(1,64,64),mat);grp.add(earth);
+ const ld=new THREE.TextureLoader();ld.setCrossOrigin('anonymous');ld.load('https://cdn.jsdelivr.net/npm/three-globe@2.31.0/example/img/earth-night.jpg',t=>{mat.map=t;mat.color.set(0xffffff);mat.needsUpdate=true},undefined,()=>{$('#gnote').textContent='Earth texture unavailable — fallback grid globe shown.';grp.add(new THREE.Mesh(new THREE.SphereGeometry(1.002,24,16),new THREE.MeshBasicMaterial({color:0x27E0FF,wireframe:true,transparent:true,opacity:.18})))});
+ sc.add(new THREE.Mesh(new THREE.SphereGeometry(1.14,64,64),new THREE.ShaderMaterial({transparent:true,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false,vertexShader:'varying vec3 n;void main(){n=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec3 n;void main(){float i=pow(.72-dot(n,vec3(0,0,1.)),3.);gl_FragColor=vec4(.15,.88,1.,1.)*i;}'})));
+ const sp=[];for(let i=0;i<900;i++){const v=new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).setLength(18+Math.random()*20);sp.push(v.x,v.y,v.z)}
+ const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));sc.add(new THREE.Points(sg,new THREE.PointsMaterial({size:.08,color:0x8997AD})));
+ Object.assign(G,{sc,cam,rd,grp,earth});let drag=null;const ray=new THREE.Raycaster(),tip=$('#tip');
+ const pick=e=>{const r=rd.domElement.getBoundingClientRect();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1),cam);const h=ray.intersectObjects([earth,...G.pick],false)[0];return h&&G.pick.includes(h.object)?h.object:null};
+ el.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,m:0};el.setPointerCapture(e.pointerId);el.style.cursor='grabbing'};
+ el.onpointermove=e=>{if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.m+=Math.abs(dx)+Math.abs(dy);grp.rotation.y+=dx*.005;grp.rotation.x=Math.max(-1.2,Math.min(1.2,grp.rotation.x+dy*.005));drag.x=e.clientX;drag.y=e.clientY}
+  const o=pick(e);if(o){const t=o.userData.tx;tip.style.display='block';tip.style.left=e.clientX+14+'px';tip.style.top=e.clientY+14+'px';tip.textContent=`#${t.transaction_id} • ${money(t.amount,t.currency)}\n${t.transaction_type} • ${route(t).replace(/&rarr;/g,'→')}\nRisk: ${t.risk_score??'–'} ${t.risk_category||''}`}else tip.style.display='none'};
+ el.onpointerup=e=>{if(drag&&drag.m<5){const o=pick(e);if(o)openTx(o.userData.tx.transaction_id)}drag=null;el.style.cursor='grab'};el.onpointerleave=()=>tip.style.display='none';
+ el.addEventListener('wheel',e=>{e.preventDefault();cam.position.z=Math.min(5,Math.max(1.5,cam.position.z+e.deltaY*.002))},{passive:false});
+ G.resize=()=>{const w=el.clientWidth,h=el.clientHeight;if(w&&h){rd.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()}};new ResizeObserver(G.resize).observe(el);G.resize();
+ $('#gp').onclick=()=>{G.paused=!G.paused;$('#gp').textContent=G.paused?'▶ Resume':'❚❚ Pause'};$('#gr').onclick=()=>{cam.position.z=3.2;grp.rotation.set(0,0,0)};
+ (function loop(now){requestAnimationFrame(loop);if(!el.offsetParent)return;if(!G.paused&&!drag&&!reduce)grp.rotation.y+=.0014;
+  if(!G.paused&&!reduce)G.items.forEach(it=>{if(it.part){it.u=(it.u+.006)%1;it.part.position.copy(it.curve.getPoint(it.u))}if(it.ring){const f=(now/1000+it.ph)%1.2;it.ring.scale.setScalar(1+f*3);it.ring.material.opacity=Math.max(0,1-f/1.2)}});rd.render(sc,cam)})(0)}
+function rmItem(it){it.objs.forEach(o=>{G.grp.remove(o);o.geometry.dispose();o.material.dispose();const i=G.pick.indexOf(o);if(i>=0)G.pick.splice(i,1)})}
+function addGlobe(t){if(!G.grp||t.origin_latitude==null||t.__g)return;t.__g=1;const c=t.risk_category,hi=c==='HIGH'||c==='CRITICAL',col=hi?0xFF3B5C:c==='MEDIUM'?0xFFB547:0x27E0FF,it={objs:[],u:Math.random(),ph:Math.random()};
+ const p=ll(+t.origin_latitude,+t.origin_longitude,1.012),m=new THREE.Mesh(new THREE.SphereGeometry(hi?.022:.014,12,12),new THREE.MeshBasicMaterial({color:col}));m.position.copy(p);m.userData.tx=t;G.grp.add(m);it.objs.push(m);G.pick.push(m);
+ if(hi){const r=new THREE.Mesh(new THREE.RingGeometry(.016,.022,32),new THREE.MeshBasicMaterial({color:col,transparent:true,side:THREE.DoubleSide}));r.position.copy(p);r.lookAt(p.clone().multiplyScalar(2));G.grp.add(r);it.ring=r;it.objs.push(r)}
+ if(t.destination_latitude!=null&&t.destination_country!==t.origin_country){const b=ll(+t.destination_latitude,+t.destination_longitude,1.012),mid=p.clone().add(b).multiplyScalar(.5).setLength(1+p.distanceTo(b)*.45);it.curve=new THREE.QuadraticBezierCurve3(p,mid,b);
+  const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints(it.curve.getPoints(48)),new THREE.LineBasicMaterial({color:col,transparent:true,opacity:.8}));G.grp.add(ln);it.objs.push(ln);
+  const pt=new THREE.Mesh(new THREE.SphereGeometry(.012,8,8),new THREE.MeshBasicMaterial({color:0xffffff}));G.grp.add(pt);it.part=pt;it.objs.push(pt)}
+ G.items.push(it);if(G.items.length>90)rmItem(G.items.shift())}
+initGlobe();show('overview');init();
+</script></body></html>

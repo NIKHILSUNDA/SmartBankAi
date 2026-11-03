@@ -1,0 +1,22 @@
+{
+  "mode": "unsupervised_isolation_forest",
+  "model_version": "iforest-20261030025808",
+  "trained_rows": 8000,
+  "trained_at": "2026-10-30T02:58:08.490751",
+  "thresholds": [
+    30,
+    60,
+    80
+  ],
+  "category_counts": {
+    "LOW": 7334,
+    "MEDIUM": 517,
+    "CRITICAL": 111,
+    "HIGH": 38
+  },
+  "calibration": {
+    "raw_p50": 0.4906964165498232,
+    "raw_p999": 0.7051045322417718
+  },
+  "evaluation": "No ground-truth fraud labels exist, so precision/recall/PR-AUC cannot be computed. Scores rank unusual behaviour only; flagged != confirmed fraud. Calibrate thresholds with analyst feedback (FALSE_POSITIVE rates)."
+}
